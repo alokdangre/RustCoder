@@ -18,7 +18,7 @@ services:
 
   mcp-server:
     build: .
-    command: openmcp run -p 0.0.0.0:3000 -- python app/mcp_tools.py
+    command: cardea run -p 0.0.0.0:3000 -- python app/mcp_tools.py
     ports:
       - "3000:3000"
     environment:

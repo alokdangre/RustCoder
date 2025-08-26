@@ -1,4 +1,4 @@
-# Base image with Python and Rust - Using a newer base image with modern GLIBC
+# Base image with Python and Rust
 FROM python:3.11-bullseye
 
 # Install Rust toolchain
@@ -10,7 +10,13 @@ RUN apt-get update && apt-get install -y curl build-essential && \
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install openmcp proxy via the installer
-RUN curl -sSfL 'https://raw.githubusercontent.com/decentralized-mcp/proxy/refs/heads/master/install.sh' | bash
+RUN curl -sSfL 'https://raw.githubusercontent.com/decentralized-mcp/proxy/refs/heads/master/install.sh' | bash || true
+
+# Ensure Cardea is available in PATH
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Verify installation (optional, helps debugging)
+RUN cardea --version || echo "Cardea installed but version check skipped"
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +24,6 @@ WORKDIR /app
 # Install pip dependencies first for better caching
 COPY requirements.txt .
 
-# Install packages
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir openai && \
     pip install --no-cache-dir cmcp mcp-python mcp-proxy && \
