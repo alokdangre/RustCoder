@@ -339,12 +339,8 @@ def fix(
                 rprint("\n[bold]Build output:[/bold]")
                 sys.stdout.write(str(data["build_output"]) + "\n")
 
-
 def main():
     app()
 
-
 if __name__ == "__main__":
     main()
-
-
