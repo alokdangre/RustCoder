@@ -328,7 +328,7 @@ jobs:
           echo "Testing CLI commands..."
 
           # Test compile from file
-          echo "[filename: Cargo.toml]\n[package]\nname = \"test\"\nversion = \"0.1.0\"[filename: src/main.rs]\nfn main() { println!(\"Hello\"); }" > test_project.txt
+          echo "[filename: Cargo.toml]\n[package]\nname = \"test\"\nversion = \"0.1.0\"\n\n[filename: src/main.rs]\nfn main() { println!(\"Hello\"); }" > test_project.txt
 
           python -m cli.main --server http://localhost:8001 compile --code test_project.txt
 
@@ -336,19 +336,19 @@ jobs:
           python -m cli.main --server http://localhost:8001 compile --project test-123
 
           # Test fix from file
-          python -m cli.main --server http://localhost:8001 fix --code test_project.--description "test project" --max-attempts 2
+          python -m cli.main --server http://localhost:8001 fix --code test_project.txt --description "test project" --max-attempts 2
 
           # Test fix from project ID
-          python -m cli.main --server http://localhost:8001 fix --project test-123 --descript"test project" --max-attempts 2
+          python -m cli.main --server http://localhost:8001 fix --project test-123 --description "test project" --max-attempts 2
 
           # Test status command
           python -m cli.main --server http://localhost:8001 status --project test-123
 
           # Test cat command
-          python -m cli.main --server http://localhost:8001 cat --project test-123 --file main.rs
+          python -m cli.main --server http://localhost:8001 cat --project test-123 --file src/main.rs
 
           # Test download command (should fail gracefully with mock server)
-          python -m cli.main --server http://localhost:8001 download --project test-123 || e"Download failed as expected with mock server"
+          python -m cli.main --server http://localhost:8001 download --project test-123 || echo "Download failed as expected with mock server"
 
           # Clean up
           kill $MOCK_PID 2>/dev/null || true
@@ -360,16 +360,16 @@ jobs:
           echo "Testing CLI error handling..."
                   
           # Test missing required arguments
-          python -m cli.main compile 2>&1 | grep -q "Error: Must specify either --code--project" && echo "Missing args error handled ✅" || exit 1
+          python -m cli.main compile 2>&1 | grep -q "Error: Must specify either --code or --project" && echo "Missing args error handled ✅" || exit 1
 
           # Test conflicting arguments
-          python -m cli.main compile --code test.txt --project test-123 2>&1 | grep -q "ErrCannot specify both --code and --project" && echo "Conflicting args error hand✅" || exit 1
+          python -m cli.main compile --code test.txt --project test-123 2>&1 | grep -q "Error: Cannot specify both --code and --project" && echo "Conflicting args error handled ✅" || exit 1
 
           # Test non-existent file
-          python -m cli.main compile --code nonexistent.txt 2>&1 | grep -q "File not found"echo "File not found error handled ✅" || exit 1
+          python -m cli.main compile --code nonexistent.txt 2>&1 | grep -q "File not found" && echo "File not found error handled ✅" || exit 1
 
           # Test non-existent project
-          python -m cli.main --server http://localhost:8001 compile --project nonexistent 2>&grep -q "Project not found" && echo "Project not found error handled ✅" || exit 1
+          python -m cli.main --server http://localhost:8001 compile --project nonexistent 2>&1 | grep -q "Project not found" && echo "Project not found error handled ✅" || exit 1
 
           echo "CLI error handling tests completed ✅"
       - name: Test CLI JSON output
@@ -384,7 +384,7 @@ jobs:
           # Test JSON output
           python -m cli.main --server http://localhost:8001 version --json | python -c "import json, sys; json.load(sys.stdin); print('JSON output valid ✅')"
                   
-          python -m cli.main --server http://localhost:8001 compile --code test_project.--json | python -c "import json, sys; json.load(sys.stdin); print('Compile JSON outvalid ✅')"
+          python -m cli.main --server http://localhost:8001 compile --code test_project.txt --json | python -c "import json, sys; json.load(sys.stdin); print('Compile JSON output valid ✅')"
 
           # Clean up
           kill $MOCK_PID 2>/dev/null || true
