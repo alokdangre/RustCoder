@@ -85,18 +85,6 @@ class CompileAndFixRequest(BaseModel):
     description: str
     max_attempts: int = 3
 
-# Add the AskRequest model
-class AskRequest(BaseModel):
-    prompt: str
-    context: Optional[str] = None
-    model: Optional[str] = None
-
-# Add the AskResponse model
-class AskResponse(BaseModel):
-    response: str
-    prompt: str
-    context_length: Optional[int] = None
-
 # Define the get_vector_store function
 def get_vector_store():
     return vector_store
